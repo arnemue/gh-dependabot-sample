@@ -7,7 +7,7 @@ pandas==1.2.4
 Werkzeug==2.0.1
 pyarrow==4.0.1
 gensim==4.0.1
-waitress==2.0.0
+waitress==2.1.2
 azure-identity==1.6.0
 azure.keyvault==4.1.0
 keyring==23.0.1
