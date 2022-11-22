@@ -1,15 +1,17 @@
-FROM python:3.9-slim
+FROM debian:11-slim AS build
+RUN apt-get update && \
+    apt-get install --no-install-suggests --no-install-recommends --yes python3-venv gcc libpython3-dev && \
+    python3 -m venv /venv && \
+    /venv/bin/pip install --upgrade pip setuptools wheel
 
-COPY ./requirements.txt /code/requirements.txt
+# Build the virtualenv as a separate step: Only re-execute this step when requirements.txt changes
+FROM build AS build-venv
+COPY requirements.txt /requirements.txt
+RUN /venv/bin/pip install --disable-pip-version-check -r /requirements.txt
 
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
-
-RUN groupadd -r demouser && useradd --no-log-init -r -s /bin/bash -g demouser demouser
-
-COPY --chown=demouser app /code/app
-
-WORKDIR /code/app
-
-USER demouser
-
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
+# Copy the virtualenv into a distroless image
+FROM gcr.io/distroless/python3-debian11:nonroot
+COPY --from=build-venv /venv /venv
+COPY app /app
+WORKDIR /app
+ENTRYPOINT ["/venv/bin/uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
