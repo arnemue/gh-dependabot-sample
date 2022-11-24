@@ -41,7 +41,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           # list of Docker images to use as base name for tags
-          images: ghcr.io/${{ github.repository }}/demo-image
+          images: docker.pkg.github.com/${{ github.repository }}/demo-image
 
         # this will build the images, once per platform,
         # then push to one or more registries (based on image list above in docker_meta)
